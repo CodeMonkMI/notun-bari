@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual Environments
+todoapp_env/
+venv/
+env/
+ENV/
+.venv/
+.env/
+*.env
+
+# Django Stuff
+*.log
+db.sqlite3
+
+staticfiles/
+ 
+local_settings.py
+node_modules
+
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.tox/
+.nox/
+.cache/
+pytest_cache/
+.pytest_cache/
+
+# Pipenv
+Pipfile.lock
+
+# mypy
+.mypy_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Other
+*.bak
+*.orig
+
+# If you use docker
+*.pid

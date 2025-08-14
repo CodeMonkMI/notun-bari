@@ -1,0 +1,15 @@
+services:
+  libms_db:
+    image: postgres:15-alpine
+    container_name: notunbari-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nb
+    ports:
+      - "5432:5432"
+    volumes:
+      - django_notunbari_data:/var/lib/postgresql/data
+
+volumes:
+  django_notunbari_data:
