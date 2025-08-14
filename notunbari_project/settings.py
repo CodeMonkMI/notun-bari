@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "djoser",
     "api",
     "user",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -154,4 +155,15 @@ DJOSER = {
         "user_create": "user.serializers.UserCreateSerializer",
         "user": "user.serializers.UserSerializer",
     },
+}
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+        }
+    },
+    "USE_SESSION_AUTH": False,
 }

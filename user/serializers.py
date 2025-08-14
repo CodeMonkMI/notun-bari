@@ -6,6 +6,7 @@ User = get_user_model()
 
 class UserCreateSerializer(sr.UserCreateSerializer):
     class Meta(sr.UserCreateSerializer.Meta):
+        ref_name = "Customuser"
         model = User
         fields = [
             "first_name",
@@ -18,6 +19,7 @@ class UserCreateSerializer(sr.UserCreateSerializer):
 
 class UserSerializer(sr.UserSerializer):
     class Meta(sr.UserSerializer.Meta):
+        ref_name = "Customuser"
         model = User
         fields = [
             "id",
