@@ -148,3 +148,10 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
     "REFRESH_TOKEN_LIFETIME": timedelta(weeks=1),
 }
+
+DJOSER = {
+    "SERIALIZERS": {
+        "user_create": "user.serializers.UserCreateSerializer",
+        "user": "user.serializers.UserSerializer",
+    },
+}
