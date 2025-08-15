@@ -63,6 +63,15 @@ class PetUpdateSerializer(serializers.ModelSerializer):
         ]
 
 
+class PetStatusUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Pet
+        fields = [
+            "status",
+        ]
+
+
 class AdoptedBySerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()

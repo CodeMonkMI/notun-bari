@@ -8,7 +8,7 @@ class PetFilter(FilterSet):
         model = Pet
         fields = {
             "name": ["contains"],
-            "category__name": ["exact"],
+            "category__name": ["exact", "contains"],
             "fees": ["lt", "gt"],
         }
 
