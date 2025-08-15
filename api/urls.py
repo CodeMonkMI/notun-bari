@@ -4,6 +4,7 @@ from rest_framework.routers import SimpleRouter
 from category.views import CategoryViewSet
 from rest_framework_nested.routers import NestedSimpleRouter
 from pet.views import AdoptionHistoryViewSet, PetViewSet
+from review.views import ReviewViewSet
 
 router = SimpleRouter()
 router.register("categories", CategoryViewSet, basename="category")
@@ -11,6 +12,7 @@ router.register("pets", PetViewSet, basename="pets")
 
 pet_router = NestedSimpleRouter(router, "pets", lookup="pets")
 pet_router.register("adoptions", AdoptionHistoryViewSet, basename="adoptions")
+pet_router.register("reviews", ReviewViewSet, basename="reviews")
 
 
 urlpatterns = [

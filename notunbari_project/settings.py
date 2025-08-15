@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import cloudinary
 from decouple import config
 import dj_database_url
 from datetime import timedelta
@@ -52,7 +53,10 @@ INSTALLED_APPS = [
     "user",
     "category",
     "pet",
+    "review",
     "drf_yasg",
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
@@ -170,3 +174,18 @@ SWAGGER_SETTINGS = {
     },
     "USE_SESSION_AUTH": False,
 }
+
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUD_NAME", cast=str),
+    "API_KEY": config("API_KEY", cast=str),
+    "API_SECRET": config("API_SECRET", cast=str),
+}
+
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
+    api_key=CLOUDINARY_STORAGE["API_KEY"],
+    api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+)
