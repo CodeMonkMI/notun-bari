@@ -14,6 +14,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         "email",
         "is_active",
     ]
+    search_fields = ("username", "email", "first_name", "last_name")
 
     fieldsets = (
         (

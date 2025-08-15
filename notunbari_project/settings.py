@@ -47,9 +47,11 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "djoser",
+    "django_filters",
     "api",
     "user",
     "category",
+    "pet",
     "drf_yasg",
 ]
 
