@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "djoser",
     "api",
     "user",
+    "category",
     "drf_yasg",
 ]
 
