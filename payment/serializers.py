@@ -11,6 +11,7 @@ class PetSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        ref_name = "payment_pet_serializer"
         model = Pet
         fields = [
             "name",
