@@ -162,7 +162,12 @@ DJOSER = {
     "SERIALIZERS": {
         "user_create": "user.serializers.UserCreateSerializer",
         "user": "user.serializers.UserSerializer",
+        "current_user": "user.serializers.UserSerializer",
     },
+    "USER_ID_FIELD": "id",
+    "LOGIN_FIELD": "email",
+    "SEND_ACTIVATION_EMAIL": True,
+    "ACTIVATION_URL": "activate/{uid}/{token}",
 }
 
 SWAGGER_SETTINGS = {
@@ -190,3 +195,11 @@ cloudinary.config(
     api_key=CLOUDINARY_STORAGE["API_KEY"],
     api_secret=CLOUDINARY_STORAGE["API_SECRET"],
 )
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = config("EMAIL_HOST", default="")
+EMAIL_PORT = config("EMAIL_PORT", default="")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = True
