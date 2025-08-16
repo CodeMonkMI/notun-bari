@@ -27,5 +27,11 @@ class UserSerializer(sr.UserSerializer):
             "last_name",
             "email",
             "username",
-            "balance",
         ]
+
+
+class CurrentUserSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+
+        model = User
+        fields = UserSerializer.Meta.fields + ["balance"]
