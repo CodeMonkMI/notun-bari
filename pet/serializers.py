@@ -10,7 +10,6 @@ class PetOwnerSerializer(serializers.ModelSerializer):
         fields = [
             "first_name",
             "last_name",
-            "username",
         ]
 
 
@@ -20,7 +19,6 @@ class PetCategorySerializer(serializers.ModelSerializer):
         fields = [
             "first_name",
             "last_name",
-            "username",
         ]
 
 
@@ -37,10 +35,12 @@ class PetSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "category",
+            "description",
             "category_name",
             "fees",
+            "breed",
+            "age",
             "visibility",
-            "status",
             "owner",
         ]
 
@@ -48,7 +48,16 @@ class PetSerializer(serializers.ModelSerializer):
             "status",
             "owner",
         ]
-        extra_kwargs = {"category": {"write_only": True}}
+        extra_kwargs = {
+            "category": {
+                "write_only": True,
+            }
+        }
+
+
+class MyPetSerializer(PetSerializer):
+    class Meta(PetSerializer.Meta):
+        fields = PetSerializer.Meta.fields + ["status"]
 
 
 class PetUpdateSerializer(serializers.ModelSerializer):
@@ -58,16 +67,9 @@ class PetUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "name",
             "category",
+            "description",
             "fees",
             "visibility",
-        ]
-
-
-class PetStatusUpdateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Pet
-        fields = [
             "status",
         ]
 

@@ -6,12 +6,7 @@ from pet.paginations import AdoptionHistoryPagination, PetsPagination
 from pet.models import Pet, Adoption
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from pet.serializers import (
-    PetSerializer,
-    AdoptionHistorySerializer,
-    PetUpdateSerializer,
-    PetStatusUpdateSerializer,
-)
+from pet import serializers as pet_serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -39,15 +34,6 @@ class PetViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=["patch"])
-    def update_status(self, request, pk=None):
-        pet = self.get_object()
-        serializer = PetStatusUpdateSerializer(pet, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-
     def retrieve(self, request, *args, **kwargs):
         pet = self.get_object()
 
@@ -65,7 +51,7 @@ class PetViewSet(viewsets.ModelViewSet):
         if self.action in ["my_pet"]:
             return [permissions.IsAuthenticated()]
 
-        if self.action in ["update_status"]:
+        if self.action in ["partial_update", "destroy"]:
             return [permissions.IsAdminUser()]
 
         return [permissions.IsAuthenticatedOrReadOnly()]
@@ -75,10 +61,11 @@ class PetViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "partial_update":
-            return PetUpdateSerializer
-        if self.action in ["update_status"]:
-            return PetStatusUpdateSerializer
-        return PetSerializer
+            return pet_serializers.PetUpdateSerializer
+
+        if self.action in ["my_pet"]:
+            return pet_serializers.MyPetSerializer
+        return pet_serializers.PetSerializer
 
     def get_queryset(self):
         if self.action in ["retrieve"]:
@@ -94,7 +81,7 @@ class AdoptionHistoryViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = AdoptionHistorySerializer
+    serializer_class = pet_serializers.AdoptionHistorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "head", "options", "trace"]
 

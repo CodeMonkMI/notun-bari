@@ -1,3 +1,4 @@
+from ast import mod
 from pickle import TRUE
 from pyexpat import model
 import uuid
@@ -47,17 +48,20 @@ class Pet(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     name = models.CharField(max_length=255)
-
-    category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, related_name="pets", null=True
-    )
-
+    breed = models.CharField(max_length=255)
+    age = models.IntegerField()
+    description = models.TextField()
     status = models.CharField(max_length=20, choices=StatusChoices, default=PENDING)
+    fees = models.FloatField(default=0.0)
     visibility = models.CharField(
         max_length=20, choices=VisibilityChoices, default=PRIVATE
     )
 
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, related_name="pets", null=True
+    )
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="owned_pets", null=True
     )
@@ -68,8 +72,6 @@ class Pet(models.Model):
         null=True,
         blank=True,
     )
-
-    fees = models.FloatField(default=0.0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
