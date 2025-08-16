@@ -1,6 +1,4 @@
 from rest_framework import serializers
-
-import pet
 from .models import Review
 
 
@@ -25,3 +23,14 @@ class ReviewSerializer(serializers.ModelSerializer):
             )
 
         return attrs
+
+
+class ReviewUpdateSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False)
+
+    class Meta:
+        model = Review
+        fields = [
+            "comments",
+            "image",
+        ]
