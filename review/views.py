@@ -9,6 +9,7 @@ from .permissions import IsOwnerOrAdmin
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    swagger_tags = ["reviews"]
     queryset = (
         Review.objects.select_related("reviewer").prefetch_related("images").all()
     )

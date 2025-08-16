@@ -9,7 +9,7 @@ from .serializers import PaymentAdminHistorySerializer, PaymentHistorySerializer
 
 
 class PaymentHistoryViewSet(viewsets.ModelViewSet):
-
+    swagger_tags = ["payments"]
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrAdmin]
 
     http_method_names = ["get", "post", "head", "options"]

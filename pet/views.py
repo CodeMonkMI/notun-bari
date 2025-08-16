@@ -13,7 +13,7 @@ from django.db import transaction
 
 
 class PetViewSet(viewsets.ModelViewSet):
-
+    swagger_tags = ["pets"]
     pagination_class = PetsPagination
     http_method_names = ["get", "post", "patch", "delete", "head", "options", "trace"]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -94,6 +94,7 @@ class AdoptionHistoryViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
+    swagger_tags = ["adoptions"]
     serializer_class = pet_serializers.AdoptionHistorySerializer
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ["get", "post", "head", "options", "trace"]

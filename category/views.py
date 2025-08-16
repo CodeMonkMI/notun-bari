@@ -7,7 +7,7 @@ from category.serializers import CategorySerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-
+    swagger_tags = ["categories"]
     queryset = Category.objects.all().order_by("name")
     permission_classes = [AllowAny]
     serializer_class = CategorySerializer

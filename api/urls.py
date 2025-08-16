@@ -17,6 +17,12 @@ pet_router.register("adoptions", AdoptionHistoryViewSet, basename="adoptions")
 pet_router.register("reviews", ReviewViewSet, basename="reviews")
 
 
+# ReviewViewSet.swagger_tags = ["Pet Reviews"]
+# AdoptionHistoryViewSet.swagger_tags = ["Pet Adoptions"]
+# PetViewSet.swagger_tags = ["Pets"]
+# PaymentHistoryViewSet.swagger_tags = ["Payments"]
+# CategoryViewSet.swagger_tags = ["Categories"]
+
 urlpatterns = [
     path(r"", include(router.urls)),
     path(r"", include(pet_router.urls)),
