@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+from pet.models import Pet
+
 
 class IsOwnerOrAdmin(permissions.BasePermission):
 

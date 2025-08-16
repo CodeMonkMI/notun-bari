@@ -20,8 +20,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     ordering_fields = ["fees", "updated_at"]
 
     def get_permissions(self):
-        if self.action in ["partial_update", "destroy"]:
-            return [IsOwnerOrAdmin()]
+        if self.action in ["create", "partial_update", "destroy"]:
+            return [permissions.IsAuthenticated(), IsOwnerOrAdmin()]
         return [permissions.IsAuthenticatedOrReadOnly()]
 
     def get_serializer_class(self):
