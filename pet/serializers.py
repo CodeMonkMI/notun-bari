@@ -40,7 +40,6 @@ class PetSerializer(serializers.ModelSerializer):
             "fees",
             "breed",
             "age",
-            "visibility",
             "owner",
         ]
 
@@ -57,7 +56,23 @@ class PetSerializer(serializers.ModelSerializer):
 
 class MyPetSerializer(PetSerializer):
     class Meta(PetSerializer.Meta):
-        fields = PetSerializer.Meta.fields + ["status"]
+        fields = [
+            "id",
+            "name",
+            "category",
+            "description",
+            "category_name",
+            "fees",
+            "breed",
+            "age",
+            "status",
+            "visibility",
+        ]
+
+
+class AdminPetSerializer(PetSerializer):
+    class Meta(PetSerializer.Meta):
+        fields = PetSerializer.Meta.fields + ["visibility"]
 
 
 class PetUpdateSerializer(serializers.ModelSerializer):

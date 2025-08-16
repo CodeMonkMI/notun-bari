@@ -36,8 +36,9 @@ class PetViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         pet = self.get_object()
-
-        if pet.owner == request.user:
+        user = request.user
+        print(user.is_staff)
+        if (pet.owner == user) or (user.is_authenticated and user.is_staff):
             serializers = self.get_serializer(pet)
             return Response(serializers.data, status=status.HTTP_200_OK)
 
@@ -65,13 +66,24 @@ class PetViewSet(viewsets.ModelViewSet):
 
         if self.action in ["my_pet"]:
             return pet_serializers.MyPetSerializer
+
+        user = self.request.user
+        if user.is_authenticated and user.is_staff:
+            return pet_serializers.AdminPetSerializer
+
         return pet_serializers.PetSerializer
 
     def get_queryset(self):
+
+        user = self.request.user
+        if user.is_authenticated and user.is_staff:
+            return Pet.objects.select_related("category", "owner")
         if self.action in ["retrieve"]:
             return Pet.objects.select_related("category", "owner")
+
         return Pet.objects.select_related("category", "owner").filter(
-            status=Pet.APPROVED
+            status=Pet.APPROVED,
+            visibility=Pet.PUBLIC,
         )
 
 
@@ -82,7 +94,7 @@ class AdoptionHistoryViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = pet_serializers.AdoptionHistorySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
     http_method_names = ["get", "post", "head", "options", "trace"]
 
     pagination_class = AdoptionHistoryPagination
@@ -91,6 +103,8 @@ class AdoptionHistoryViewSet(
     ordering_fields = ["date", "id"]
 
     def get_queryset(self):
+        if not self.request.user.is_staff:
+            return Adoption.objects.none()
         pet_pk = self.kwargs.get("pets_pk")
         return Adoption.objects.select_related("pet", "adopted_by").filter(
             pet_id=pet_pk,
