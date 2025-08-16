@@ -9,6 +9,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from pet import serializers as pet_serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db import transaction
 
 
 class PetViewSet(viewsets.ModelViewSet):
@@ -111,9 +112,10 @@ class AdoptionHistoryViewSet(
         )
 
     def perform_create(self, serializer):
-        pet_pk = self.kwargs.get("pets_pk")
-        pet = Pet.objects.get(pk=pet_pk)
-        if pet.status == Pet.ADOPTED:
-            raise serializers.ValidationError("this pet is already adopted!")
+        user = self.request.user
+        pet = serializer.context["pet_instance"]
 
-        serializer.save(pet_id=pet_pk, adopted_by=self.request.user)
+        with transaction.atomic():
+            user.balance -= pet.fees  # type: ignore
+            user.save(update_fields=["balance"])  # type: ignore
+            serializer.save(pet_id=pet.pk, adopted_by=self.request.user)

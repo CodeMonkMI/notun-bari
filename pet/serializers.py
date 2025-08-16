@@ -129,6 +129,8 @@ class AdoptionHistorySerializer(serializers.ModelSerializer):
 
         if pet.status == Pet.ADOPTED:
             raise ValidationError("This pet is already adopted!")
+        if view.request.user.balance < pet.fees:
+            raise ValidationError("Insufficient balance")
 
         self.context["pet_instance"] = pet
         return attrs
