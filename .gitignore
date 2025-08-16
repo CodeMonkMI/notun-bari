@@ -18,8 +18,7 @@ ENV/
 *.log
 db.sqlite3
 
-staticfiles/
- 
+
 local_settings.py
 node_modules
 
