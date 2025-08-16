@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "category",
     "pet",
     "review",
+    "payment",
     "drf_yasg",
     "cloudinary",
     "cloudinary_storage",
