@@ -10,6 +10,7 @@ class PetFilter(FilterSet):
             "name": ["contains"],
             "category__name": ["exact", "contains"],
             "fees": ["lt", "gt"],
+            "status": ["exact"],
         }
 
 

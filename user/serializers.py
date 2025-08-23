@@ -30,6 +30,10 @@ class UserSerializer(sr.UserSerializer):
             "last_name",
             "email",
             "username",
+            "is_active",
+            "is_staff",
+            "last_login",
+            "date_joined",
         ]
 
 

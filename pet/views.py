@@ -1,4 +1,6 @@
 from functools import partial
+from traceback import print_tb
+from urllib import request
 from rest_framework import viewsets, permissions, mixins, status
 from rest_framework import serializers
 from pet.fitlers import AdoptionHistoryFilter, PetFilter
@@ -19,7 +21,7 @@ class PetViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete", "head", "options", "trace"]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = PetFilter
-    search_fields = ["name", "category__name", "fees"]
+    search_fields = ["name", "category__name", "fees", "status"]
     ordering_fields = ["fees", "updated_at"]
 
     @swagger_auto_schema(
@@ -82,7 +84,11 @@ class PetViewSet(viewsets.ModelViewSet):
         pet = self.get_object()
         user = request.user
         print(user.is_staff)
-        if (pet.owner == user) or (user.is_authenticated and user.is_staff):
+        if (
+            (pet.owner == user)
+            or (pet.status == Pet.ADOPTED and pet.adopted_by == user)
+            or (user.is_authenticated and user.is_staff)
+        ):
             serializers = self.get_serializer(pet)
             return Response(serializers.data, status=status.HTTP_200_OK)
 
@@ -206,6 +212,99 @@ class AdoptionHistoryViewSet(
             user.balance -= pet.fees  # type: ignore
             user.save(update_fields=["balance"])  # type: ignore
             serializer.save(pet_id=pet.pk, adopted_by=self.request.user)
+
+    @swagger_auto_schema(
+        operation_summary="List adoption histories",
+        operation_description=(
+            "Retrieve a list of adoption records for a specific pet.\n\n"
+            "- Only admins can view adoption histories.\n"
+            "- Supports filtering, ordering, and pagination."
+        ),
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Retrieve adoption history by ID",
+        operation_description=(
+            "Fetch details of a specific adoption record by ID.\n\n"
+            "- Only admins can retrieve adoption records."
+        ),
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create an adoption record",
+        operation_description=(
+            "Create a new adoption history entry for a pet.\n\n"
+            "- Requires authentication.\n"
+            "- Automatically deducts the adoption fees from the adopter's balance.\n"
+            "- Links the adoption record with the pet and the adopting user."
+        ),
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+
+class AdoptionViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    swagger_tags = ["adoptions"]
+    # serializer_class = pet_serializers.AdoptionAdminCreateSerializer
+
+    http_method_names = ["get", "post", "head", "options", "trace"]
+
+    pagination_class = AdoptionHistoryPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = AdoptionHistoryFilter
+    ordering_fields = ["date", "id"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticated()]
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.action == "create":
+            if self.request.user.is_staff:
+                return pet_serializers.AdoptionAdminCreateSerializer
+            return pet_serializers.AdoptionCreateSerializer
+
+        return pet_serializers.AdoptionSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Adoption.objects.all()
+
+        return Adoption.objects.select_related("pet", "adopted_by").filter(
+            adopted_by=self.request.user
+        )
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx["user"] = self.request.user
+        return ctx
+
+    def perform_create(self, serializer):
+        print(serializer.validated_data)
+        pet = serializer.validated_data["pet"]
+
+        adopted_by = serializer.validated_data["adopted_by"]
+
+        with transaction.atomic():
+            adopted_by.balance -= pet.fees  # type: ignore
+            adopted_by.save(update_fields=["balance"])  # type: ignore
+            pet.status = Pet.ADOPTED
+            pet.adopted_by = adopted_by
+            pet.save(update_fields=["status", "adopted_by"])
+
+            pet_instance = serializer.save(pet=pet, adopted_by=adopted_by)
+
+        return pet_instance
 
     @swagger_auto_schema(
         operation_summary="List adoption histories",
