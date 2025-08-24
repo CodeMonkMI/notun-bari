@@ -50,3 +50,12 @@ class PaymentHistorySerializer(serializers.ModelSerializer):
 class PaymentAdminHistorySerializer(PaymentHistorySerializer):
     class Meta(PaymentHistorySerializer.Meta):
         fields = PaymentHistorySerializer.Meta.fields + ["user"]
+
+
+class PaymentInitSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PaymentHistory
+        fields = [
+            "amount",
+        ]

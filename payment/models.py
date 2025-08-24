@@ -10,14 +10,18 @@ User = get_user_model()
 
 
 class PaymentHistory(models.Model):
+    PROGRESS = "progress"
     FAILED = "failed"
     SUCCESS = "success"
     BLOCKED = "blocked"
+    CANCELLED = "cancelled"
 
     STATUS_CHOICES = [
+        (PROGRESS, "progress"),
         (FAILED, "failed"),
         (SUCCESS, "success"),
         (BLOCKED, "blocked"),
+        (CANCELLED, "cancelled"),
     ]
 
     EXPENSE = "expense"
@@ -31,7 +35,7 @@ class PaymentHistory(models.Model):
 
     transaction_id = models.CharField(max_length=100, unique=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_method = models.CharField(max_length=50)
+    payment_method = models.CharField(max_length=50, null=True, blank=True)
 
     pet = models.ForeignKey(
         Pet,
@@ -44,7 +48,7 @@ class PaymentHistory(models.Model):
         User, on_delete=models.CASCADE, related_name="payment_histories"
     )
 
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=SUCCESS)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PROGRESS)
     payment_type = models.CharField(
         max_length=20, choices=PAYMENT_TYPE_CHOICES, default=INCOME
     )

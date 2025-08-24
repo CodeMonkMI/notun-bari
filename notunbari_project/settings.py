@@ -214,3 +214,6 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = True
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
+BACKEND_URL = config("BACKEND_URL", default="http://127.0.0.1:8000")
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:5173")

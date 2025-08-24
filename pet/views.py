@@ -1,6 +1,3 @@
-from functools import partial
-from traceback import print_tb
-from urllib import request
 from rest_framework import viewsets, permissions, mixins, status
 from rest_framework import serializers
 from pet.fitlers import AdoptionHistoryFilter, PetFilter

@@ -7,11 +7,12 @@ from user.models import CustomUser
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = [
-        "username",
         "first_name",
         "last_name",
-        "balance",
+        "username",
         "email",
+        "phone_number",
+        "balance",
         "is_active",
     ]
     search_fields = ("username", "email", "first_name", "last_name")
@@ -31,6 +32,7 @@ class CustomUserAdmin(admin.ModelAdmin):
                     "last_name",
                     "email",
                     "balance",
+                    "phone_number",
                 )
             },
         ),
