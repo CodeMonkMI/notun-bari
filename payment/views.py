@@ -21,9 +21,11 @@ from drf_yasg.utils import swagger_auto_schema
 from django.conf import settings as main_settings
 from sslcommerz_lib import SSLCOMMERZ
 from decouple import config
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 
 
-class PaymentHistoryViewSet(viewsets.ModelViewSet):
+class PaymentHistoryViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     swagger_tags = ["payments"]
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrAdmin]
 
@@ -53,11 +55,13 @@ class PaymentHistoryViewSet(viewsets.ModelViewSet):
 
     # custom actions
     @swagger_auto_schema(
-        operation_summary="List my pets",
+        operation_summary="Initiate a payment",
         operation_description=(
-            "Retrieve a list of pets owned by the authenticated user.\n\n"
+            "Start a new payment process using SSLCommerz.\n\n"
             "- Requires authentication.\n"
-            "- Returns only the pets created by the logged-in user."
+            "- Generates a unique transaction ID.\n"
+            "- Creates a PaymentHistory record with status 'PENDING'.\n"
+            "- Returns the payment gateway URL for the user to complete the transaction."
         ),
     )
     @action(detail=False, methods=["post"])
@@ -121,11 +125,13 @@ class PaymentHistoryViewSet(viewsets.ModelViewSet):
         return Response({"url": url}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_summary="List my pets",
+        operation_summary="Handle successful payment",
         operation_description=(
-            "Retrieve a list of pets owned by the authenticated user.\n\n"
-            "- Requires authentication.\n"
-            "- Returns only the pets created by the logged-in user."
+            "Callback endpoint for successful payments from SSLCommerz.\n\n"
+            "- Requires transaction ID and amount.\n"
+            "- Updates the PaymentHistory status to 'SUCCESS'.\n"
+            "- Increases the authenticated user’s balance.\n"
+            "- Redirects to the frontend with a success message."
         ),
     )
     @action(detail=False, methods=["post"])
@@ -155,15 +161,16 @@ class PaymentHistoryViewSet(viewsets.ModelViewSet):
             user.save(update_fields=["balance"])
 
         return HttpResponseRedirect(
-            f"{main_settings.FRONTEND_URL}/dashboard/payments/create?msg='Payment success!'"
+            f"{main_settings.FRONTEND_URL}/dashboard/payments/create?msg=Payment success!&status=success"
         )
 
     @swagger_auto_schema(
-        operation_summary="List my pets",
+        operation_summary="Handle failed payment",
         operation_description=(
-            "Retrieve a list of pets owned by the authenticated user.\n\n"
-            "- Requires authentication.\n"
-            "- Returns only the pets created by the logged-in user."
+            "Callback endpoint for failed payments from SSLCommerz.\n\n"
+            "- Requires transaction ID.\n"
+            "- Updates the PaymentHistory status to 'FAILED'.\n"
+            "- Redirects to the frontend with a failure message."
         ),
     )
     @action(detail=False, methods=["post"])
@@ -184,15 +191,16 @@ class PaymentHistoryViewSet(viewsets.ModelViewSet):
             )
 
         return HttpResponseRedirect(
-            f"{main_settings.FRONTEND_URL}/dashboard/payments/create?msg='Payment failed!'"
+            f"{main_settings.FRONTEND_URL}/dashboard/payments/create?msg=Payment failed!&status=failed"
         )
 
     @swagger_auto_schema(
-        operation_summary="List my pets",
+        operation_summary="Handle cancelled payment",
         operation_description=(
-            "Retrieve a list of pets owned by the authenticated user.\n\n"
-            "- Requires authentication.\n"
-            "- Returns only the pets created by the logged-in user."
+            "Callback endpoint for cancelled payments from SSLCommerz.\n\n"
+            "- Requires transaction ID.\n"
+            "- Updates the PaymentHistory status to 'CANCELLED'.\n"
+            "- Redirects to the frontend with a cancellation message."
         ),
     )
     @action(detail=False, methods=["post"])
@@ -209,7 +217,7 @@ class PaymentHistoryViewSet(viewsets.ModelViewSet):
             payment_history.update(status=PaymentHistory.CANCELLED)
 
         return HttpResponseRedirect(
-            f"{main_settings.FRONTEND_URL}/dashboard/payments/create?msg='Payment cancelled!'"
+            f"{main_settings.FRONTEND_URL}/dashboard/payments/create?msg=Payment cancelled!&status=cancelled"
         )
 
     # custom actions end
@@ -224,17 +232,6 @@ class PaymentHistoryViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_summary="Create a payment history record",
-        operation_description=(
-            "Add a new payment history entry. "
-            "The authenticated user will automatically be assigned as the owner. "
-            "Accessible by all authenticated users."
-        ),
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(
         operation_summary="Retrieve payment history by ID",
